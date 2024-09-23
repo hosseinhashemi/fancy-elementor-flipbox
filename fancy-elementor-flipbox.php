@@ -3,10 +3,12 @@
  * Plugin Name: Fancy Elementor Flipbox
  * Description: This plugin adds an amazing and customizable flip box widget(with many options) to the Elementor page builder plugin.
  * Plugin URI:  http://themeprix.com/fancy-elementor-flipbox/
- * Version:     2.5.2
+ * Version:     2.6.0
  * Author:      ThemePrix
  * Author URI:  https://themeprix.com/
  * Text Domain: fancy-elementor-flipbox
+ * License: GPLv3
+ * License URI: https://www.gnu.org/licenses/gpl-3.0.html
  */
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
@@ -51,10 +53,10 @@ function fancy_elementor_flipbox_fail_load_out_of_date() {
 	$file_path = 'elementor/elementor.php';
 
 	$upgrade_link = wp_nonce_url( self_admin_url( 'update.php?action=upgrade-plugin&plugin=' ) . $file_path, 'upgrade-plugin_' . $file_path );
-	$message = '<p>' . __( 'Fancy Elementor Flipbox is not working because you are using an old version of Elementor.', 'fancy-elementor-flipbox' ) . '</p>';
-	$message .= '<p>' . sprintf( '<a href="%s" class="button-primary">%s</a>', $upgrade_link, __( 'Update Elementor Now', 'fancy-elementor-flipbox' ) ) . '</p>';
+	$message = '<p>' . esc_html__( 'Fancy Elementor Flipbox is not working because you are using an old version of Elementor.', 'fancy-elementor-flipbox' ) . '</p>';
+	$message .= '<p>' . sprintf( '<a href="%s" class="button-primary">%s</a>', $upgrade_link, esc_html__( 'Update Elementor Now', 'fancy-elementor-flipbox' ) ) . '</p>';
 
-	echo '<div class="error">' . $message . '</div>';
+	echo '<div class="error">' . esc_html($message) . '</div>';
 }
 
 function fancy_elementor_flipbox_fail_load() {
@@ -66,17 +68,17 @@ function fancy_elementor_flipbox_fail_load() {
 
 	if (fancy_elementor_flipbox_is_plugin_installed($elementor)) {
 		$activation_url = wp_nonce_url('plugins.php?action=activate&amp;plugin=' . $elementor . '&amp;plugin_status=all&amp;paged=1&amp;s', 'activate-plugin_' . $elementor);
-		$message = __('<strong>Fancy Elementor Flipbox</strong> requires <strong>Elementor</strong> plugin to be active. Please activate Elementor to continue.', 'fancy-elementor-flipbox');
-		$button_text = __('Activate Elementor', 'fancy-elementor-flipbox');
+		$message = esc_html__('<strong>Fancy Elementor Flipbox</strong> requires <strong>Elementor</strong> plugin to be active. Please activate Elementor to continue.', 'fancy-elementor-flipbox');
+		$button_text = esc_html__('Activate Elementor', 'fancy-elementor-flipbox');
 	} else {
 		$activation_url = wp_nonce_url(self_admin_url('update.php?action=install-plugin&plugin=elementor'), 'install-plugin_elementor');
-		$message = sprintf(__('<strong>Fancy Elementor Flipbox</strong> requires <strong>Elementor</strong> plugin to be installed and activated. Please install Elementor to continue.', 'fancy-elementor-flipbox'), '<strong>', '</strong>');
-		$button_text = __('Install Elementor', 'fancy-elementor-flipbox');
+		$message = sprintf(esc_html__('<strong>Fancy Elementor Flipbox</strong> requires <strong>Elementor</strong> plugin to be installed and activated. Please install Elementor to continue.', 'fancy-elementor-flipbox'), '<strong>', '</strong>');
+		$button_text = esc_html__('Install Elementor', 'fancy-elementor-flipbox');
 	}
 
 	$button = '<p><a href="' . $activation_url . '" class="button-primary">' . $button_text . '</a></p>';
 
-	printf('<div class="error"><p>%1$s</p>%2$s</div>', __($message), $button);
+	printf('<div class="error"><p>%1$s</p>%2$s</div>', $message, $button);
 }
 
 /**

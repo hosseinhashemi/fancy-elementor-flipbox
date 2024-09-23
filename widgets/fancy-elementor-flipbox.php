@@ -3,7 +3,9 @@ namespace FancyElementorFlipbox\Widgets;
 
 use Elementor\Widget_Base;
 use Elementor\Controls_Manager;
+use Elementor\Group_Control_Image_Size;
 use Elementor\Group_Control_Typography;
+use \Elementor\Utils;
 
 if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
@@ -301,6 +303,16 @@ class Fancy_Elementor_Flipbox extends Widget_Base {
 		     'label' => esc_html__( 'Back Side Image Icon', 'fancy-elementor-flipbox' ),
 		     'type' => Controls_Manager::MEDIA
 		  ]
+		);
+		$this->add_group_control(
+			Group_Control_Image_Size::get_type(),
+			[
+				'name' => 'thumbnail_f', // Usage: `{name}_size` and `{name}_custom_dimension`, in this case `thumbnail_size` and `thumbnail_custom_dimension`.
+				'default' => 'full',
+				'condition' => [
+					'image[url]!' => '',
+				],
+			]
 		);
 
 		$this->add_control(
@@ -688,68 +700,79 @@ $this->end_controls_section();
 	 */
 	protected function render() {
 		$settings = $this->get_settings_for_display();
-		$tp_bg_img_front =       sanitize_url($settings['tp_flipbox_f_bg_img']['url']);
-		$tp_bg_img_back =        sanitize_url($settings['tp_flipbox_b_bg_img']['url']);
-		$tp_icon_front =         $settings['tp_flipbox_f_icon'];
 
-		$tp_icon_back =          $settings['tp_flipbox_b_icon'];
-		$tp_flipbox_show_btn =   $settings['tp_flipbox_show_btn'];
-		$tp_flipbox_f_bg_color = sanitize_hex_color($settings['tp_flipbox_f_bg_color']);
+		$tp_icon_back = $settings['tp_flipbox_b_icon'];
+		$tp_flipbox_show_btn = $settings['tp_flipbox_show_btn'];
+		
+		//Check for front Image
+		$has_image_front = ! empty( $settings['tp_flipbox_f_icon']['url'] );
 
-		$tp_icon_front_id =    $tp_icon_front["id"];
-		$tp_icon_front_alt =   sanitize_text_field(get_post_meta($tp_icon_front_id, '_wp_attachment_image_alt', TRUE));
-		$tp_icon_front_title = sanitize_text_field(get_the_title($tp_icon_front_id));
-
-		$tp_icon_back_id =     $tp_icon_back["id"];
-		$tp_icon_back_alt =    sanitize_text_field(get_post_meta($tp_icon_back_id, '_wp_attachment_image_alt', TRUE));
-		$tp_icon_back_title =  sanitize_text_field(get_the_title($tp_icon_back_id));
+		//Check for back Image
+		$has_image_back = ! empty( $settings['tp_flipbox_b_icon']['url'] );
+		
 
 
-	  echo '<div id="flip-demo-0" class="tp-flipbox '.esc_attr($settings['tp_flipbox_style']).' tp-flipbox--'.esc_attr($settings['tp_flipbox_type']).'" onclick="">';
-	  echo '    <div class="tp-flipbox__holder" >';
-	  echo '        <div class="tp-flipbox__front" style=" background-color:'.esc_attr($tp_flipbox_f_bg_color).';background-image: url('.esc_url($tp_bg_img_front).');">';
-
-	  echo '            <div class="tp-flipbox__content">';
-	  echo '                <div class="tp-flipbox__icon-front">';
-
-	  echo '                    <img alt="'.esc_attr($tp_icon_front_alt).'" title="'. esc_attr($tp_icon_front_title) .'" src="'.esc_url($tp_icon_front['url']).'"/>';
-
-	  echo '                </div>';
-	  echo '                <' . esc_html($settings['title_tag']) . ' class="tp-flipbox__title-front">'. esc_html($settings['tp_flipbox_f_title']).'</' . esc_html($settings['title_tag']) . '>';
-	  echo '                <' . esc_html($settings['content_tag']) . ' class="tp-flipbox__desc-front">'. sanitize_textarea_field($settings['tp_flipbox_f_desc']).'</' . esc_html($settings['content_tag']) . '>';
-	  echo '            </div>';
-	  echo '        </div>';
-	  echo '        <div class="tp-flipbox__back" style="background-image: url('. esc_url($tp_bg_img_back).');" >';
-
-	  echo '            <div class="tp-flipbox__content">';
-		echo '                <div class="tp-flipbox__icon-back">';
-
-	  echo '                    <img alt="'.esc_attr($tp_icon_back_alt).'" title="'. esc_attr($tp_icon_back_title) .'"  src="'.esc_url($tp_icon_back["url"]).'"/>';
-
-
-	  echo '                </div>';
-	  echo '                <' . esc_html($settings['title_tag']) . ' class="tp-flipbox__title-back">'. esc_html($settings['tp_flipbox_b_title']) .'</' . esc_html($settings['title_tag']) . '>';
-		echo '                <' . esc_html($settings['content_tag']) . ' class="tp-flipbox__desc-back">'. sanitize_textarea_field($settings['tp_flipbox_b_desc']) .'</' . esc_html($settings['content_tag']) . '>';
-		if($tp_flipbox_show_btn == "yes"){
-	  echo '               <div class="tp-flipbox__action">';
-		$btn_external = "";
-		$btn_nofollow = "";
-		if( $settings['tp_flipbox_b_btn_url']['is_external'] ) {
-			$btn_external = ' target="_blank" ';
+		$html = '<!-- Start Of Flipbox -->';
+		$html .= '<div id="flip-demo-0" class="tp-flipbox ' . esc_attr($settings['tp_flipbox_style']) . ' tp-flipbox--' . esc_attr($settings['tp_flipbox_type']) . '">';
+		$html .= '<div class="tp-flipbox__holder">';
+		$html .= '<div class="tp-flipbox__front">';
+	
+		$html .= '<div class="tp-flipbox__content">';
+		$html .= '<div class="tp-flipbox__icon-front">';
+		
+		if($has_image_front){
+			$html .= wp_kses_post( Group_Control_Image_Size::get_attachment_image_html( $settings, 'thumbnail', 'tp_flipbox_f_icon' ) );
 		}
+		$html .= '</div>';
+		$this->add_inline_editing_attributes('title_text_front', 'none');
+		$this->add_render_attribute('title_text_front', 'class', 'tp-flipbox__title-front');
+		$title_back_html = esc_html($settings['tp_flipbox_f_title']);
+		$html .= sprintf('<%1$s %2$s>%3$s</%1$s>', Utils::validate_html_tag($settings['title_tag']), $this->get_render_attribute_string('title_text_front'), $title_back_html);
+		
+		$this->add_render_attribute( 'description_front_text', 'class', 'tp-flipbox__desc-back' );
+		$html .= sprintf( '<%1$s %2$s>%3$s</%1$s>', Utils::validate_html_tag($settings['content_tag']), $this->get_render_attribute_string( 'description_front_text' ), $settings['tp_flipbox_f_desc'] );
 
-		if( $settings['tp_flipbox_b_btn_url']['nofollow'] ) {
-			$btn_nofollow = ' rel="nofollow" ';
+
+
+		$html .= '</div>';
+		$html .= '</div>';
+	
+		$html .= '<div class="tp-flipbox__back" >';
+		$html .= '<div class="tp-flipbox__content">';
+		$html .= '<div class="tp-flipbox__icon-back">';
+		
+		if($has_image_back){
+			$html .= wp_kses_post( Group_Control_Image_Size::get_attachment_image_html( $settings, 'thumbnail', 'tp_flipbox_b_icon' ) );
 		}
+		$html .= '                </div>';
+	
+		$this->add_inline_editing_attributes('title_text', 'none');
+		$this->add_render_attribute('title_text', 'class', 'tp-flipbox__title-back');
+		$title_back_html = esc_html($settings['tp_flipbox_b_title']);
+		$html .= sprintf('<%1$s %2$s>%3$s</%1$s>', Utils::validate_html_tag($settings['title_tag']), $this->get_render_attribute_string('title_text'), $title_back_html);
+		
+		$this->add_render_attribute( 'description_back_text', 'class', 'tp-flipbox__desc-back' );
+		$html .= sprintf( '<%1$s %2$s>%3$s</%1$s>', Utils::validate_html_tag($settings['content_tag']), $this->get_render_attribute_string( 'description_back_text' ), $settings['tp_flipbox_b_desc'] );
 
-	  echo '                    <a ' . esc_html($btn_external) . ' ' . esc_html($btn_nofollow) . ' href="'.sanitize_url($settings['tp_flipbox_b_btn_url']['url']).'" class="tp-flipbox__btn">'.esc_html($settings['tp_flipbox_b_btn_text']).'</a>';
-	  echo '                   </div>';
-	}
-	  echo '                </div>';
-	  echo '            </div>';
+		if ($tp_flipbox_show_btn == "yes") {
+			$btn_external = $settings['tp_flipbox_b_btn_url']['is_external'] ? ' target="_blank"' : '';
+			$btn_nofollow = $settings['tp_flipbox_b_btn_url']['nofollow'] ? ' rel="nofollow"' : '';
+	
 
-	  echo '        </div>';
-	  echo '    </div>';
+			if ( $tp_flipbox_show_btn == "yes" ) {
+				$html .= '<div class="tp-flipbox__action">';
+				$html .= '<a ' . esc_attr($btn_external) . ' ' . esc_attr($btn_nofollow) . ' href="' . esc_url($settings['tp_flipbox_b_btn_url']['url']) . '" class="tp-flipbox__btn">' . esc_html($settings['tp_flipbox_b_btn_text']) . '</a>';
+				$html .= '</div>';
+			}
+
+		}
+	
+		$html .= '</div>';
+		$html .= '</div>';
+		$html .= '</div>';
+		$html .= '</div><!-- End Of Flipbox -->';
+		Utils::print_unescaped_internal_string( $html );
+
 	}
 
 	/**

@@ -2,21 +2,25 @@
 Contributors: hosseinhashemi
 Tags: elementor, hover-effects, flip-box, elementor addon, elementor widget
 Description: create flip box and 6 more effects with front and back side
+Short Description: create flip box and 6 more effects with front and back side
 Donate link: https://themeprix.com/donate
 Requires at least: 4.0
-Tested up to: 6.5.2
-Requires PHP: 5.4
-License: GPLv2 or later
-License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Tested up to: 6.6
+Requires PHP: 7.4
+License: GPLv3
+License URI: https://www.gnu.org/licenses/gpl-3.0.html
 Plugin URI: https://themeprix.com/fancy-elementor-flipbox/
 Author URI: https://themeprix.com/
-Stable tag: 2.5.2
-=======
+Stable tag: 2.6.0
 
+Create flip box and 6 more effects with front and back side options
 
 
 == Description ==
 Fancy Elementor Flipbox for Elementor WordPress Page Builder. A fully free and endless customization Flipbox, Rotate Style, Zoom In Style, Right-Side, Left-side, To Top, To Bottom and Zoom Out Style. You could use this plugin to show Services, Features, Categories, team members, contact info boxes, portfolio and image galleries.
+
+== Short Description ==
+Fancy Elementor Flipbox for Elementor WordPress Page Builder.
 
 = Check out Demos =
 * [Check demos](https://themeprix.com/fancy-elementor-flipbox/) — This plugin has many features that you could use it for many purposes.
